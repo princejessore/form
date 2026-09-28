@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <title>আল হেরা সেলাই প্রশিক্ষণ সেন্টার - ভর্তি ফরম ও রশিদ</title>
+  <!-- ক্রপ ও কম্পিউটার ভিশন লাইব্রেরি -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+  <!-- এআই কার্ড বাউন্ডারি ডিটেক্টর -->
+  <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady()"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'SolaimanLipi', 'Kalpurush', sans-serif;
+      color: #000;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    body {
+      background-color: #f2f2f2;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #pagesContainer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .a4-page {
+      background-color: #ffffff;
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      padding: 4mm 10mm 4mm 10mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      margin-bottom: 20px;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .islamic-bg-pattern {
+      background-color: #ffffff;
+      background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l5 5h10v10l5 5-5 5v10H25l-5 5-5-5H5V25l-5-5 5-5V5h10l5-5zm0 6l-3.5 3.5H9v7.5L5.5 20 9 23.5v7.5h7.5l3.5 3.5 3.5-3.5h7.5v-7.5l3.5-3.5-3.5-3.5V9.5h-7.5L20 6z' fill='%23000000' fill-opacity='0.028' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    .admission-form-box {
+      flex: 1;
+      border: 2px solid #000;
+      border-radius: 8px;
+      padding: 6px 14px 10px 14px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .watermark {
+      position: absolute;
+      top: 48%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 230px;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+      filter: grayscale(100%);
+    }
+
+    .form-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .header-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px dashed #000;
+    }
+
+    .header-logo {
+      width: 68px;
+      height: 68px;
+      object-fit: contain;
+      border-radius: 50%;
+      flex-shrink: 0;
+      filter: grayscale(100%);
+    }
+
+    .header-center-info {
+      flex-grow: 1;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .main-title {
+      font-size: 23.5px;
+      font-weight: 900;
+      color: #000;
+      line-height: 1.15;
+      white-space: nowrap;
+      margin-bottom: 2px;
+    }
+
+    .line-address {
+      font-size: 11.5px;
+      font-weight: bold;
+      color: #000;
+      white-space: nowrap;
+      margin-bottom: 1px;
+    }
+
+    .line-contact {
+      font-size: 11.5px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .photo-box {
+      width: 68px;
+      height: 68px;
+      border: 1.5px dashed #000;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      text-align: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+      background-color: #fff;
+      overflow: hidden;
+    }
+
+    .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      display: none;
+    }
+
+    .photo-icon {
+      font-size: 16px;
+      margin-bottom: 1px;
+    }
+
+    .photo-text {
+      line-height: 1.1;
+      font-weight: bold;
+      color: #000;
+      font-size: 8.5px;
+    }
+
+    .meta-top-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14.5px;
+      font-weight: bold;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .code-batch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .batch-field, .code-field {
+      border: none;
+      border-bottom: 1.5px dotted #000;
+      width: 70px;
+      padding: 1px 4px;
+      font-size: 14.5px;
+      outline: none;
+      background: transparent;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .print-code-batch-display {
+      display: none;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .meta-datetime {
+      font-size: 14px;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .form-title-wrapper {
+      text-align: center;
+      margin: 4px 0 5px 0;
+    }
+
+    .form-title-pill {
+      display: inline-block;
+      background-color: #000 !important;
+      color: #fff !important;
+      font-size: 17.5px;
+      font-weight: 900;
+      padding: 2px 36px;
+      border-radius: 50px;
+      letter-spacing: 0.5px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 20px;
+      row-gap: 6.5px;
+      margin-top: 2px;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+    }
+
+    .label-title {
+      font-weight: bold;
+      white-space: nowrap;
+      color: #000;
+      font-size: 16px;
+    }
+
+    .colon-mark {
+      margin: 0 6px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .input-field {
+      flex-grow: 1;
+      border: none;
+      border-bottom: 1.5px dotted #000;
+      padding: 2px 4px;
+      font-size: 15.5px;
+      outline: none;
+      background: transparent;
+      color: #000;
+      width: 40px;
+    }
+
+    .address-row {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      margin-top: 5.5px;
+    }
+
+    .address-field {
+      border: none;
+      border-bottom: 1.5px dotted #000;
+      padding: 1px 4px;
+      font-size: 15px;
+      outline: none;
+      background: transparent;
+      flex-grow: 1;
+      min-width: 45px;
+    }
+
+    .same-address-wrapper {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: normal;
+      margin-left: 8px;
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    .same-address-wrapper input {
+      cursor: pointer;
+    }
+
+    .nid-section-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 5px 0 4px 0;
+      width: 100%;
+    }
+
+    .nid-card-shape {
+      width: 195px;
+      height: 98px;
+      border: 1.5px solid #000;
+      border-radius: 6px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nid-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(100%) contrast(110%);
+    }
+
+    .nid-user-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: none;
+      z-index: 5;
+    }
+
+    .fee-calc-section {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: #fff;
+      border: 1.5px solid #000;
+      border-radius: 6px;
+      padding: 4px 12px;
+      margin: 2px 0 3px 0;
+    }
+
+    .fee-box {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .fee-field {
+      border: none;
+      border-bottom: 1.5px dotted #000;
+      width: 85px;
+      padding: 1px 4px;
+      font-size: 15px;
+      font-weight: bold;
+      outline: none;
+      background: transparent;
+      text-align: center;
+      margin-left: 5px;
+    }
+
+    .fee-field:read-only {
+      background-color: #eee;
+    }
+
+    .notice-box-full {
+      width: 100%;
+      margin: 2px 0 0 0;
+      text-align: center;
+    }
+
+    .notice-text-full-badge {
+      display: block;
+      width: 100%;
+      background-color: #000 !important;
+      color: #fff !important;
+      padding: 4px 10px;
+      font-size: 15px;
+      font-weight: 900;
+      border-radius: 50px;
+      letter-spacing: 0.8px;
+      text-align: center;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    .signature-section {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 26px;
+      padding: 0 25px;
+    }
+
+    .sig-block {
+      text-align: center;
+      width: 150px;
+    }
+
+    .sig-line {
+      border-top: 1.5px dotted #000;
+      margin-bottom: 3px;
+    }
+
+    .sig-text {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .cut-line-area {
+      height: 0.28in;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .cut-line-dash {
+      width: 100%;
+      border-top: 1.5px dashed #000;
+      position: absolute;
+    }
+
+    .cut-text {
+      background: #fff;
+      padding: 0 10px;
+      font-size: 10px;
+      font-weight: bold;
+      color: #000;
+      position: relative;
+      z-index: 1;
+    }
+
+    .admission-receipt-box {
+      height: 3.1in;
+      border: 2px solid #000;
+      border-radius: 8px;
+      padding: 6px 14px 8px 14px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      margin-bottom: 0;
+    }
+
+    .admission-receipt-box .watermark {
+      width: 160px;
+      opacity: 0.05;
+      top: 55%;
+    }
+
+    .admission-receipt-box .header-area {
+      padding-bottom: 3px;
+      border-bottom: 1.5px dashed #000;
+    }
+
+    .admission-receipt-box .header-logo {
+      width: 44px;
+      height: 44px;
+    }
+
+    .student-photo-box {
+      width: 44px;
+      height: 44px;
+      border: 1px dashed #000;
+      border-radius: 50%;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .student-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .student-photo-box .placeholder-text {
+      font-size: 8.5px;
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .admission-receipt-box .main-title {
+      font-size: 15.5px;
+      margin-bottom: 2px;
+    }
+
+    .admission-receipt-box .line-address,
+    .admission-receipt-box .line-contact {
+      font-size: 9.5px;
+      line-height: 1.15;
+    }
+
+    .admission-receipt-box .meta-top-line {
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .admission-receipt-box .batch-field, 
+    .admission-receipt-box .code-field {
+      width: 52px;
+      font-size: 12px;
+    }
+
+    .admission-receipt-box .form-title-wrapper {
+      margin: 3px 0 4px 0;
+    }
+
+    .admission-receipt-box .form-title-pill {
+      font-size: 13.5px;
+      padding: 1px 24px;
+    }
+
+    .field-grid {
+      column-gap: 18px;
+      row-gap: 5px;
+      margin-top: 2px;
+    }
+
+    .admission-receipt-box .form-group {
+      font-size: 13px;
+    }
+
+    .admission-receipt-box .label-title {
+      font-size: 13px;
+    }
+
+    .admission-receipt-box .colon-mark {
+      font-size: 13px;
+      margin: 0 5px;
+    }
+
+    .admission-receipt-box .input-field {
+      font-size: 13px;
+      padding: 1px 3px;
+    }
+
+    .admission-receipt-box .address-row {
+      font-size: 12.5px;
+      margin-top: 4px;
+    }
+
+    .admission-receipt-box .address-field {
+      font-size: 12.5px;
+      padding: 1px 3px;
+    }
+
+    .admission-receipt-box .signature-section {
+      margin-top: 14px;
+      padding: 0 20px;
+    }
+
+    .admission-receipt-box .sig-block {
+      width: 120px;
+    }
+
+    .admission-receipt-box .sig-text {
+      font-size: 10.5px;
+    }
+
+    .action-bar {
+      position: fixed;
+      bottom: 25px;
+      right: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 99999;
+    }
+
+    .action-btn {
+      padding: 9px 16px;
+      border-radius: 30px;
+      border: 1.5px solid #000;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      transition: 0.2s;
+      background-color: #000;
+      color: #fff;
+    }
+
+    .action-btn:hover {
+      transform: scale(1.05);
+      background-color: #222;
+    }
+
+    .action-btn.btn-reset {
+      background-color: #fff;
+      color: #000;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 999999;
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .crop-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 15px;
+    }
+
+    .crop-modal-content {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      max-width: 650px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    }
+
+    .crop-image-wrapper {
+      max-height: 450px;
+      width: 100%;
+      overflow: hidden;
+      background: #222;
+      border-radius: 4px;
+    }
+
+    .crop-image-wrapper img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .crop-modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .crop-btn {
+      padding: 8px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 1px solid #000;
+    }
+
+    .crop-btn-save {
+      background: #000;
+      color: #fff;
+    }
+
+    .crop-btn-cancel {
+      background: #fff;
+      color: #000;
+    }
+
+    .crop-btn-auto {
+      background: #f0f0f0;
+      color: #000;
+      border: 1px dashed #333;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color: #000 !important;
+      }
+      html, body {
+        width: 210mm;
+        background: #fff !important;
+        padding: 0;
+        margin: 0;
+      }
+      .a4-page {
+        border: none !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
+        padding: 4mm 10mm 4mm 10mm !important;
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+      }
+      .a4-page:last-child {
+        page-break-after: avoid !important;
+      }
+      .action-bar, .loading-overlay, .same-address-wrapper, .crop-modal-overlay {
+        display: none !important;
+      }
+      .code-batch-wrapper {
+        display: none !important;
+      }
+      .print-code-batch-display {
+        display: inline-block !important;
+      }
+      .photo-box, .student-photo-box, .nid-card-shape {
+        background-color: #ffffff !important;
+      }
+      #photoPlaceholder, #photoPlaceholderStu {
+        display: none !important;
+      }
+      .notice-text-full-badge, .form-title-pill {
+        background-color: #000 !important;
+        color: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loadingOverlay" class="loading-overlay">
+  <div id="loadingText">ডাটা লোড / সেভ হচ্ছে, অপেক্ষা করুন...</div>
+</div>
+
+<div id="cropModalOverlay" class="crop-modal-overlay">
+  <div class="crop-modal-content">
+    <div style="font-size: 15px; font-weight: bold; margin-bottom: 10px; width:100%; text-align: left; display:flex; justify-content:space-between; align-items:center;">
+      <span>✂️ এআই দিয়ে কার্ড ডিটেক্ট করা হয়েছে (প্রয়োজনে টেনে ছোট-বড় করুন):</span>
+    </div>
+    <div class="crop-image-wrapper">
+      <img id="imageToCrop" src="" alt="Crop Preview">
+    </div>
+    <div class="crop-modal-actions">
+      <button type="button" class="crop-btn crop-btn-cancel" onclick="closeCropModal()">বাতিল</button>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="crop-btn crop-btn-auto" onclick="reRunAutoDetect()">🤖 পুনরায় ডিটেক্ট</button>
+        <button type="button" class="crop-btn crop-btn-save" onclick="saveCroppedImage()">ক্রপ ও সেভ করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pagesContainer">
+  <div class="a4-page" id="page-1">
+
+    <div class="admission-form-box islamic-bg-pattern">
+      <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="watermark">
+
+      <div class="form-content">
+        <div>
+          <div class="header-area">
+            <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="header-logo">
+            <div class="header-center-info">
+              <div class="main-title">আল হেরা সেলাই প্রশিক্ষণ সেন্টার</div>
+              <div class="line-address">মাদানীনগর, সিটি টাওয়ার গলি, চিটাগাং রোড, সিদ্ধিরগঞ্জ, নারায়ণগঞ্জ।</div>
+              <div class="line-contact">যোগাযোগ: ০১৮৮৫-০০৬৬৫৪, ০১৩১৭৮৩৮৯৯২</div>
+            </div>
+            
+            <div class="photo-box" onclick="triggerCropUpload(this, 'photo')">
+              <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'photo')">
+              <img class="uploadedImage" alt="">
+              <div class="photoPlaceholder">
+                <div class="photo-icon">📷</div>
+                <div class="photo-text">ছবি তুলুন</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="meta-top-line">
+            <div class="code-batch-wrapper">
+              <input type="text" class="batch-field off-batch" placeholder="ব্যাচ নং" oninput="handleBanglaBatchCodeInput(this)" onblur="formatBanglaTwoDigits(this)">
+              <input type="text" class="code-field off-code" placeholder="কোড নং" oninput="handleBanglaBatchCodeInput(this)" onblur="formatBanglaTwoDigits(this)">
+            </div>
+            <div class="print-code-batch-display off-print-code">কোড নং: </div>
+
+            <div class="meta-datetime">
+              তারিখ: <span class="currentDate"></span>
+            </div>
+            <div class="meta-datetime">
+              সময়: <span class="currentTime"></span>
+            </div>
+          </div>
+
+          <div class="form-title-wrapper">
+            <div class="form-title-pill">ভর্তি ফরম</div>
+          </div>
+
+          <div>
+            <div class="field-grid">
+              <div class="form-group">
+                <div class="label-title">শিক্ষার্থীর নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-name" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-name')">
+              </div>
+              <div class="form-group">
+                <div class="label-title">পিতার নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-father" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-father')">
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">মাতার নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-mother" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-mother')">
+              </div>
+              <div class="form-group">
+                <div class="label-title">আইডি কার্ড</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-nid" placeholder="বাংলা সংখ্যায় লিখুন" oninput="handleBanglaNumbersOnly(this, 'stu-nid')">
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">মোবাইল নাম্বার</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-phone" placeholder="বাংলা সংখ্যায় লিখুন" oninput="handleBanglaPhoneLookup(this)">
+              </div>
+              <div class="form-group">
+                <div class="label-title">অভিভাবকের ফোন</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-guardian" placeholder="বাংলা সংখ্যায় লিখুন" oninput="handleBanglaNumbersOnly(this, 'stu-guardian')">
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">জন্ম তারিখ</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-dob" placeholder="যেমন: ১৫/০৭/২০০০" oninput="handleBanglaDobInput(this)">
+              </div>
+              <div class="form-group">
+                <div class="label-title">শিক্ষাগত যোগ্যতা</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field off-edu" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, null)">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 5.5px;">
+              <div class="label-title">বয়স</div>
+              <div class="colon-mark">:</div>
+              <input type="text" class="input-field off-age" placeholder="জন্ম তারিখ লিখলে স্বয়ংক্রিয় বছর আসবে" readonly>
+            </div>
+
+            <div class="address-row">
+              <div class="label-title">বর্তমান ঠিকানা</div>
+              <div class="colon-mark">:</div>
+              <span style="font-weight:bold; margin-right:4px;">গ্রাম:</span>
+              <input type="text" class="address-field off-pres-vil" placeholder="বাংলায় লিখুন" oninput="handleAddressInput(this, 'stu-pres-vil')">
+              <span style="font-weight:bold; margin:0 4px 0 8px;">থানা:</span>
+              <input type="text" class="address-field off-pres-thana" placeholder="বাংলায় লিখুন" oninput="handleAddressInput(this, 'stu-pres-thana')">
+              <span style="font-weight:bold; margin:0 4px 0 8px;">জেলা:</span>
+              <input type="text" class="address-field off-pres-dist" placeholder="বাংলায় লিখুন" oninput="handleAddressInput(this, 'stu-pres-dist')">
+            </div>
+
+            <div class="address-row">
+              <div class="label-title" style="display: flex; align-items: center;">
+                স্থায়ী ঠিকানা
+                <label class="same-address-wrapper" title="বর্তমান ঠিকানা ও স্থায়ী ঠিকানা একই হলে টিক দিন">
+                  <input type="checkbox" class="same-address-check" onchange="copyPresentToPermanent(this)">
+                  <span>বর্তমান ঠিকানার অনুরূপ</span>
+                </label>
+              </div>
+              <div class="colon-mark">:</div>
+              <span style="font-weight:bold; margin-right:4px;">গ্রাম:</span>
+              <input type="text" class="address-field off-perm-vil" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-perm-vil')">
+              <span style="font-weight:bold; margin:0 4px 0 8px;">থানা:</span>
+              <input type="text" class="address-field off-perm-thana" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-perm-thana')">
+              <span style="font-weight:bold; margin:0 4px 0 8px;">জেলা:</span>
+              <input type="text" class="address-field off-perm-dist" placeholder="বাংলায় লিখুন" oninput="handleStrictBanglaText(this, 'stu-perm-dist')">
+            </div>
+          </div>
+        </div>
+
+        <div class="nid-section-wrapper">
+          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-front')" title="ক্লিক করে সরাসরি ক্যামেরা দিয়ে ফ্রন্ট সাইড ছবি তুলুন ও ক্রপ করুন">
+            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'nid-front')">
+            <img src="https://lh3.googleusercontent.com/d/1YdVIpD3le7XCMyKHlU9OMPc60-u0nifz" class="nid-thumb-img" alt="NID Front">
+            <img class="nid-user-img" alt="Uploaded NID Front">
+          </div>
+
+          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-back')" title="ক্লিক করে সরাসরি ক্যামেরা দিয়ে ব্যাক সাইড ছবি তুলুন">
+            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'nid-back')">
+            <img src="https://lh3.googleusercontent.com/d/1HvvACQXBkD9PXErtGMP7hTop92DDai2j" class="nid-thumb-img" alt="NID Back">
+            <img class="nid-user-img" alt="Uploaded NID Back">
+          </div>
+        </div>
+
+        <div>
+          <div class="fee-calc-section">
+            <div class="fee-box">
+              <span>মোট ফি:</span>
+              <input type="text" class="fee-field totalFee" placeholder="০" oninput="handleBanglaFeeCalculation(this)">
+            </div>
+            <div class="fee-box">
+              <span>জমা:</span>
+              <input type="text" class="fee-field paidFee" placeholder="০" oninput="handleBanglaFeeCalculation(this)">
+            </div>
+            <div class="fee-box">
+              <span>বাকি:</span>
+              <input type="text" class="fee-field dueFee" placeholder="০" readonly>
+            </div>
+          </div>
+
+          <div class="notice-box-full">
+            <div class="notice-text-full-badge">বিশেষ দ্রষ্টব্য: প্রশিক্ষণ ফি অফেরতযোগ্য</div>
+          </div>
+
+          <div class="signature-section">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="sig-text">শিক্ষার্থীর স্বাক্ষর</div>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <div class="sig-text">কর্তৃপক্ষের স্বাক্ষর</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cut-line-area">
+      <div class="cut-line-dash"></div>
+      <div class="cut-text">✂ এখান থেকে কেটে আলাদা করুন</div>
+    </div>
+
+    <div class="admission-receipt-box islamic-bg-pattern">
+      <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="watermark">
+
+      <div class="form-content">
+        <div>
+          <div class="header-area">
+            <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="header-logo">
+            
+            <div class="header-center-info">
+              <div class="main-title">আল হেরা সেলাই প্রশিক্ষণ সেন্টার</div>
+              <div class="line-address">মাদানীনগর, সিটি টাওয়ার গলি, চিটাগাং রোড, সিদ্ধিরগঞ্জ, নারায়ণগঞ্জ।</div>
+              <div class="line-contact">যোগাযোগ: ০১৮৮৫-০০৬৬৫৪, ০১৩১৭৮৩৮৯৯২</div>
+            </div>
+
+            <div class="student-photo-box">
+              <img class="uploadedImageStu" alt="">
+              <div class="photoPlaceholderStu placeholder-text">ছবি</div>
+            </div>
+          </div>
+
+          <div class="meta-top-line">
+            <div class="code-batch-wrapper">
+              <input type="text" class="batch-field stu-batch" placeholder="ব্যাচ নং" readonly>
+              <input type="text" class="code-field stu-code" placeholder="কোড নং" readonly>
+            </div>
+            <div class="print-code-batch-display stu-print-code">কোড নং: </div>
+
+            <div class="meta-datetime">
+              তারিখ: <span class="currentDateStu"></span>
+            </div>
+            <div class="meta-datetime">
+              সময়: <span class="currentTimeStu"></span>
+            </div>
+          </div>
+
+          <div class="form-title-wrapper">
+            <div class="form-title-pill">ভর্তি রশিদ</div>
+          </div>
+
+          <div>
+            <div class="field-grid">
+              <div class="form-group">
+                <div class="label-title">শিক্ষার্থীর নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-name" readonly>
+              </div>
+              <div class="form-group">
+                <div class="label-title">পিতার নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-father" readonly>
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">মাতার নাম</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-mother" readonly>
+              </div>
+              <div class="form-group">
+                <div class="label-title">আইডি কার্ড</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-nid" readonly>
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">মোবাইল</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-phone" readonly>
+              </div>
+              <div class="form-group">
+                <div class="label-title">অভিভাবকের ফোন</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-guardian" readonly>
+              </div>
+
+              <div class="form-group">
+                <div class="label-title">জন্ম তারিখ</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-dob" readonly>
+              </div>
+              <div class="form-group">
+                <div class="label-title">বয়স</div>
+                <div class="colon-mark">:</div>
+                <input type="text" class="input-field stu-age" readonly>
+              </div>
+            </div>
+
+            <div class="address-row">
+              <div class="label-title">ঠিকানা</div>
+              <div class="colon-mark">:</div>
+              <span style="font-weight:bold; margin-right:4px;">গ্রাম:</span>
+              <input type="text" class="address-field stu-perm-vil" readonly>
+              <span style="font-weight:bold; margin:0 4px 0 8px;">থানা:</span>
+              <input type="text" class="address-field stu-perm-thana" readonly>
+              <span style="font-weight:bold; margin:0 4px 0 8px;">জেলা:</span>
+              <input type="text" class="address-field stu-perm-dist" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class="signature-section">
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-text">শিক্ষার্থীর স্বাক্ষর</div>
+          </div>
+          <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-text">কর্তৃপক্ষের স্বাক্ষর</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="action-bar">
+  <button type="button" class="action-btn" onclick="addNewPage()" title="নতুন পেজ যুক্ত করুন">➕ নতুন পাতা</button>
+  <button type="button" class="action-btn" onclick="saveToSheetAndPrint()" title="প্রিন্ট ও সেভ">🖨️ প্রিন্ট / সেভ</button>
+  <button type="button" class="action-btn btn-reset" onclick="resetAllForms()" title="রিসেট">🔄 রিসেট</button>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHMQdj2iymTRrjzXZiX1oCWuYOA-G8JvnAwmB3hXMBxww1WvaSJ40CSpda6hpmG28M/exec";
+
+  let isCvReady = false;
+  function onOpenCvReady() {
+    isCvReady = true;
+  }
+
+  let currentCropper = null;
+  let activeCropContext = {
+    type: null,
+    container: null,
+    input: null
+  };
+
+  function triggerCropUpload(container, type) {
+    const input = container.querySelector('input[type="file"]');
+    if (input) input.click();
+  }
+
+  function initCropProcess(event, input, type) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    activeCropContext.type = type;
+    activeCropContext.input = input;
+    activeCropContext.container = input.closest(type === 'photo' ? '.photo-box' : '.nid-card-shape');
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const modal = document.getElementById('cropModalOverlay');
+      const imgToCrop = document.getElementById('imageToCrop');
+      imgToCrop.src = e.target.result;
+      modal.style.display = 'flex';
+
+      if (currentCropper) {
+        currentCropper.destroy();
+      }
+
+      currentCropper = new Cropper(imgToCrop, {
+        aspectRatio: NaN,
+        viewMode: 1,
+        autoCropArea: 0.9,
+        responsive: true,
+        rotatable: true,
+        scalable: true,
+        zoomable: true,
+        ready: function () {
+          if (type.startsWith('nid') && isCvReady) {
+            detectCardBoundingBox(imgToCrop);
+          }
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function detectCardBoundingBox(imgElement) {
+    try {
+      let src = cv.imread(imgElement);
+      let gray = new cv.Mat();
+      let blurred = new cv.Mat();
+      let edges = new cv.Mat();
+
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
+      cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+      cv.Canny(blurred, edges, 50, 150);
+
+      let contours = new cv.MatVector();
+      let hierarchy = new cv.Mat();
+      cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+
+      let maxArea = 0;
+      let bestRect = null;
+      const minAcceptableArea = (src.cols * src.rows) * 0.12;
+
+      for (let i = 0; i < contours.size(); ++i) {
+        let cnt = contours.get(i);
+        let rect = cv.boundingRect(cnt);
+        let area = rect.width * rect.height;
+
+        let ratio = rect.width / rect.height;
+        if (ratio >= 1.2 && ratio <= 2.0 && area > maxArea && area >= minAcceptableArea) {
+          maxArea = area;
+          bestRect = rect;
+        }
+      }
+
+      if (bestRect && currentCropper) {
+        currentCropper.setData({
+          x: Math.max(0, bestRect.x - 4),
+          y: Math.max(0, bestRect.y - 4),
+          width: Math.min(src.cols, bestRect.width + 8),
+          height: Math.min(src.rows, bestRect.height + 8)
+        });
+      }
+
+      src.delete(); gray.delete(); blurred.delete(); edges.delete();
+      contours.delete(); hierarchy.delete();
+    } catch (e) {
+      console.log("Auto-detection fallback:", e);
+    }
+  }
+
+  function reRunAutoDetect() {
+    const imgToCrop = document.getElementById('imageToCrop');
+    if (imgToCrop && isCvReady) {
+      detectCardBoundingBox(imgToCrop);
+    }
+  }
+
+  function closeCropModal() {
+    const modal = document.getElementById('cropModalOverlay');
+    modal.style.display = 'none';
+    if (currentCropper) {
+      currentCropper.destroy();
+      currentCropper = null;
+    }
+    if (activeCropContext.input) {
+      activeCropContext.input.value = '';
+    }
+  }
+
+  function saveCroppedImage() {
+    if (!currentCropper) return;
+
+    const canvas = currentCropper.getCroppedCanvas({
+      maxWidth: 1200,
+      maxHeight: 1200
+    });
+    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const { type, container } = activeCropContext;
+    const page = container.closest('.a4-page');
+
+    if (type === 'photo') {
+      const img = page.querySelector('.uploadedImage');
+      const placeholder = page.querySelector('.photoPlaceholder');
+      img.src = croppedDataUrl;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+
+      const imgStu = page.querySelector('.uploadedImageStu');
+      const placeholderStu = page.querySelector('.photoPlaceholderStu');
+      imgStu.src = croppedDataUrl;
+      imgStu.style.display = 'block';
+      placeholderStu.style.display = 'none';
+    } else {
+      const thumb = container.querySelector('.nid-thumb-img');
+      const userImg = container.querySelector('.nid-user-img');
+      userImg.src = croppedDataUrl;
+      userImg.style.display = 'block';
+      if (thumb) thumb.style.display = 'none';
+    }
+
+    closeCropModal();
+  }
+
+  function toBanglaDigits(num) {
+    if (num === null || num === undefined) return '';
+    const bDigits = {'0':'০', '1':'১', '2':'২', '3':'৩', '4':'৪', '5':'৫', '6':'৬', '7':'৭', '8':'৮', '9':'৯'};
+    return String(num).replace(/[0-9]/g, w => bDigits[w]);
+  }
+
+  function toEnglishDigits(str) {
+    if (!str) return '';
+    const bDigits = {'০':'0', '১':'1', '২':'2', '৩':'3', '৪':'4', '৫':'5', '৬':'6', '৭':'7', '৮':'8', '৯':'9'};
+    return String(str).replace(/[০-৯]/g, w => bDigits[w]);
+  }
+
+  function handleStrictBanglaText(element, targetClass) {
+    element.value = element.value.replace(/[a-zA-Z]/g, '');
+    if (targetClass) {
+      syncField(element, targetClass);
+    }
+  }
+
+  function handleAddressInput(element, targetClass) {
+    handleStrictBanglaText(element, targetClass);
+    const page = element.closest('.a4-page');
+    const checkbox = page.querySelector('.same-address-check');
+    if (checkbox && checkbox.checked) {
+      copyPresentToPermanent(checkbox);
+    }
+  }
+
+  function copyPresentToPermanent(checkbox) {
+    const page = checkbox.closest('.a4-page');
+    const presVil = page.querySelector('.off-pres-vil');
+    const presThana = page.querySelector('.off-pres-thana');
+    const presDist = page.querySelector('.off-pres-dist');
+
+    const permVil = page.querySelector('.off-perm-vil');
+    const permThana = page.querySelector('.off-perm-thana');
+    const permDist = page.querySelector('.off-perm-dist');
+
+    if (checkbox.checked) {
+      permVil.value = presVil.value;
+      permThana.value = presThana.value;
+      permDist.value = presDist.value;
+    }
+    syncField(permVil, 'stu-perm-vil');
+    syncField(permThana, 'stu-perm-thana');
+    syncField(permDist, 'stu-perm-dist');
+  }
+
+  function padBanglaTwoDigits(val) {
+    if (!val) return '';
+    let eng = toEnglishDigits(val.trim()).replace(/[^0-9]/g, '');
+    if (eng.length === 1) {
+      eng = '0' + eng;
+    }
+    return toBanglaDigits(eng);
+  }
+
+  function formatBanglaTwoDigits(element) {
+    if (element.value.trim() !== '') {
+      element.value = padBanglaTwoDigits(element.value);
+      handleBanglaBatchCodeInput(element);
+    }
+  }
+
+  function updateDateTimeForPage(page) {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const dateStr = toBanglaDigits(day + '/' + month + '/' + year);
+
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const timeStr = toBanglaDigits(String(hours).padStart(2, '0') + ':' + minutes);
+
+    const cd = page.querySelector('.currentDate');
+    const ct = page.querySelector('.currentTime');
+    const cds = page.querySelector('.currentDateStu');
+    const cts = page.querySelector('.currentTimeStu');
+
+    if(cd) cd.innerText = dateStr;
+    if(ct) ct.innerText = timeStr;
+    if(cds) cds.innerText = dateStr;
+    if(cts) cts.innerText = timeStr;
+  }
+
+  function initDateTime() {
+    document.querySelectorAll('.a4-page').forEach(updateDateTimeForPage);
+  }
+  initDateTime();
+  setInterval(initDateTime, 60000);
+
+  function handleBanglaBatchCodeInput(element) {
+    const page = element.closest('.a4-page');
+    element.value = toBanglaDigits(element.value.replace(/[a-zA-Z]/g, '').replace(/[^০-৯0-9]/g, ''));
+
+    let batchVal = page.querySelector('.off-batch').value.trim();
+    let codeVal = page.querySelector('.off-code').value.trim();
+
+    page.querySelector('.stu-batch').value = batchVal;
+    page.querySelector('.stu-code').value = codeVal;
+
+    let pBatch = padBanglaTwoDigits(batchVal);
+    let pCode = padBanglaTwoDigits(codeVal);
+
+    const merged = (pBatch + pCode).trim();
+    const printText = merged ? `কোড নং: ${merged}` : 'কোড নং: ';
+
+    page.querySelector('.off-print-code').innerText = printText;
+    page.querySelector('.stu-print-code').innerText = printText;
+  }
+
+  function syncField(element, targetClass) {
+    const page = element.closest('.a4-page');
+    const target = page.querySelector('.' + targetClass);
+    if (target) {
+      target.value = element.value;
+    }
+  }
+
+  function handleBanglaNumbersOnly(element, targetClass) {
+    let clean = toBanglaDigits(element.value.replace(/[a-zA-Z]/g, '').replace(/[^০-৯0-9-]/g, ''));
+    element.value = clean;
+    syncField(element, targetClass);
+  }
+
+  function handleBanglaDobInput(element) {
+    let clean = toBanglaDigits(element.value.replace(/[a-zA-Z]/g, '').replace(/[^০-৯0-9\/\-.]/g, ''));
+    element.value = clean;
+    syncField(element, 'stu-dob');
+
+    const page = element.closest('.a4-page');
+    const ageFieldOff = page.querySelector('.off-age');
+    const ageFieldStu = page.querySelector('.stu-age');
+
+    let engVal = toEnglishDigits(clean).replace(/[\-\.]/g, '/');
+    let parts = engVal.split('/');
+
+    if (parts.length === 3 && parts[2].length === 4) {
+      let day = parseInt(parts[0], 10);
+      let month = parseInt(parts[1], 10) - 1;
+      let year = parseInt(parts[2], 10);
+
+      let bDate = new Date(year, month, day);
+      let today = new Date();
+
+      if (!isNaN(bDate.getTime()) && year > 1900 && year <= today.getFullYear()) {
+        let ageYears = today.getFullYear() - bDate.getFullYear();
+        let monthDiff = today.getMonth() - bDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < bDate.getDate())) {
+          ageYears--;
+        }
+        if (ageYears >= 0) {
+          let banglaAge = `${toBanglaDigits(ageYears)} বছর`;
+          ageFieldOff.value = banglaAge;
+          ageFieldStu.value = banglaAge;
+          return;
+        }
+      }
+    }
+    if (clean.trim() === '') {
+      ageFieldOff.value = '';
+      ageFieldStu.value = '';
+    }
+  }
+
+  let searchTimeout = null;
+  function handleBanglaPhoneLookup(element) {
+    handleBanglaNumbersOnly(element, 'stu-phone');
+    const banglaPhone = element.value.trim();
+    const page = element.closest('.a4-page');
+    const engPhone = toEnglishDigits(banglaPhone);
+
+    const currentName = page.querySelector('.off-name').value.trim();
+    if (currentName !== "") {
+      return; 
+    }
+
+    if (engPhone.length === 11) {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        fetchStudentData(engPhone, page);
+      }, 300);
+    }
+  }
+
+  function fetchStudentData(phone, page) {
+    const overlay = document.getElementById('loadingOverlay');
+    const loadText = document.getElementById('loadingText');
+    loadText.innerText = "ডাটা খোঁজা হচ্ছে...";
+    overlay.style.display = 'flex';
+
+    fetch(`${SCRIPT_URL}?action=search&phone=${encodeURIComponent(phone)}`)
+      .then(res => res.json())
+      .then(data => {
+        overlay.style.display = 'none';
+        if (data && data.found) {
+          if (data.name) {
+            page.querySelector('.off-name').value = data.name;
+            page.querySelector('.stu-name').value = data.name;
+          }
+          if (data.father) {
+            page.querySelector('.off-father').value = data.father;
+            page.querySelector('.stu-father').value = data.father;
+          }
+          if (data.mother) {
+            page.querySelector('.off-mother').value = data.mother;
+            page.querySelector('.stu-mother').value = data.mother;
+          }
+          if (data.dob) {
+            const dobIn = page.querySelector('.off-dob');
+            dobIn.value = toBanglaDigits(data.dob);
+            handleBanglaDobInput(dobIn);
+          }
+          if (data.nid) {
+            const cleanNid = toBanglaDigits(data.nid);
+            page.querySelector('.off-nid').value = cleanNid;
+            page.querySelector('.stu-nid').value = cleanNid;
+          }
+          if (data.guardian) {
+            const cleanGuar = toBanglaDigits(data.guardian);
+            page.querySelector('.off-guardian').value = cleanGuar;
+            page.querySelector('.stu-guardian').value = cleanGuar;
+          }
+          if (data.edu) page.querySelector('.off-edu').value = data.edu;
+          
+          if (data.fullAddress) {
+            var parts = data.fullAddress.split(',');
+            if (parts[0]) {
+              page.querySelector('.off-pres-vil').value = parts[0].trim();
+              page.querySelector('.stu-perm-vil').value = parts[0].trim();
+            }
+            if (parts[1]) {
+              page.querySelector('.off-pres-thana').value = parts[1].trim();
+              page.querySelector('.stu-perm-thana').value = parts[1].trim();
+            }
+            if (parts[2]) {
+              page.querySelector('.off-pres-dist').value = parts[2].trim();
+              page.querySelector('.stu-perm-dist').value = parts[2].trim();
+            }
+          }
+        }
+      })
+      .catch(() => {
+        overlay.style.display = 'none';
+      });
+  }
+
+  function handleBanglaFeeCalculation(inputElement) {
+    const page = inputElement.closest('.a4-page');
+    inputElement.value = toBanglaDigits(inputElement.value.replace(/[a-zA-Z]/g, '').replace(/[^০-৯0-9]/g, ''));
+
+    const totalEng = parseFloat(toEnglishDigits(page.querySelector('.totalFee').value)) || 0;
+    const paidEng = parseFloat(toEnglishDigits(page.querySelector('.paidFee').value)) || 0;
+    const dueField = page.querySelector('.dueFee');
+
+    if (page.querySelector('.totalFee').value === '' && page.querySelector('.paidFee').value === '') {
+      dueField.value = '';
+    } else {
+      const due = totalEng - paidEng;
+      dueField.value = due >= 0 ? toBanglaDigits(due) : toBanglaDigits(0);
+    }
+  }
+
+  let pageCount = 1;
+  function addNewPage() {
+    pageCount++;
+    const firstPage = document.getElementById('page-1');
+    const newPage = firstPage.cloneNode(true);
+    newPage.id = 'page-' + pageCount;
+
+    newPage.querySelectorAll('input').forEach(input => {
+      if (input.type !== 'file' && input.type !== 'checkbox') input.value = '';
+      if (input.type === 'checkbox') input.checked = false;
+    });
+
+    const userImgs = newPage.querySelectorAll('.uploadedImage, .uploadedImageStu, .nid-user-img');
+    userImgs.forEach(img => {
+      img.src = '';
+      img.style.display = 'none';
+    });
+    newPage.querySelectorAll('.nid-thumb-img').forEach(img => img.style.display = 'block');
+    newPage.querySelectorAll('.photoPlaceholder, .photoPlaceholderStu').forEach(p => p.style.display = 'block');
+
+    document.getElementById('pagesContainer').appendChild(newPage);
+    updateDateTimeForPage(newPage);
+    newPage.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  async function saveToSheetAndPrint() {
+    document.querySelectorAll('.a4-page').forEach(page => {
+      const bField = page.querySelector('.off-batch');
+      const cField = page.querySelector('.off-code');
+      if (bField && bField.value.trim() !== '') bField.value = padBanglaTwoDigits(bField.value);
+      if (cField && cField.value.trim() !== '') cField.value = padBanglaTwoDigits(cField.value);
+      if (bField) handleBanglaBatchCodeInput(bField);
+    });
+
+    const pages = document.querySelectorAll('.a4-page');
+    const validPages = [];
+
+    pages.forEach(page => {
+      const nameInput = page.querySelector('.off-name');
+      if (nameInput && nameInput.value.trim() !== '') {
+        validPages.push(page);
+      }
+    });
+
+    if (validPages.length === 0) {
+      if (!confirm("কোনো শিক্ষার্থীর নাম পাওয়া যায়নি। আপনি কি সরাসরি প্রিন্ট করতে চান?")) {
+        return;
+      }
+      window.print();
+      return;
+    }
+
+    const overlay = document.getElementById('loadingOverlay');
+    const loadText = document.getElementById('loadingText');
+    overlay.style.display = 'flex';
+
+    for (let i = 0; i < validPages.length; i++) {
+      const page = validPages[i];
+      const studentName = page.querySelector('.off-name').value.trim();
+      const batch = padBanglaTwoDigits(page.querySelector('.off-batch').value.trim());
+      const code = padBanglaTwoDigits(page.querySelector('.off-code').value.trim());
+      const fullCode = (batch + code).trim();
+
+      loadText.innerText = `পাতা (${i + 1}/${validPages.length}) ডাটা ও ছবি সেভ হচ্ছে...`;
+
+      const params = new URLSearchParams();
+      params.append("code", fullCode);
+      params.append("name", studentName);
+      params.append("father", page.querySelector('.off-father').value);
+      params.append("mother", page.querySelector('.off-mother').value);
+      params.append("dob", page.querySelector('.off-dob').value);
+      params.append("age", page.querySelector('.off-age').value);
+      params.append("nid", page.querySelector('.off-nid').value);
+      params.append("phone", page.querySelector('.off-phone').value);
+      params.append("guardian", page.querySelector('.off-guardian').value);
+      params.append("edu", page.querySelector('.off-edu').value);
+
+      params.append("village", page.querySelector('.off-pres-vil').value);
+      params.append("thana", page.querySelector('.off-pres-thana').value);
+      params.append("district", page.querySelector('.off-pres-dist').value);
+
+      params.append("totalFee", page.querySelector('.totalFee').value);
+      params.append("paidFee", page.querySelector('.paidFee').value);
+      params.append("dueFee", page.querySelector('.dueFee').value);
+      params.append("date", page.querySelector('.currentDate').innerText);
+      params.append("time", page.querySelector('.currentTime').innerText);
+
+      const photoImg = page.querySelector('.uploadedImage');
+      const nidImgs = page.querySelectorAll('.nid-user-img');
+
+      params.append("photoData", (photoImg && photoImg.src && photoImg.src.startsWith('data:image')) ? photoImg.src : '');
+      params.append("nidFrontData", (nidImgs[0] && nidImgs[0].src && nidImgs[0].src.startsWith('data:image')) ? nidImgs[0].src : '');
+      params.append("nidBackData", (nidImgs[1] && nidImgs[1].src && nidImgs[1].src.startsWith('data:image')) ? nidImgs[1].src : '');
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params.toString()
+        });
+      } catch (err) {
+        console.error("Save error for page:", i + 1, err);
+      }
+    }
+
+    overlay.style.display = 'none';
+
+    const firstPageName = validPages[0].querySelector('.off-name').value.trim();
+    const originalTitle = document.title;
+    document.title = validPages.length > 1 ? `${firstPageName} সহ ${validPages.length} জন` : firstPageName;
+    window.print();
+    setTimeout(() => { document.title = originalTitle; }, 1000);
+  }
+
+  function resetAllForms() {
+    const container = document.getElementById('pagesContainer');
+    const pages = container.querySelectorAll('.a4-page');
+    for (let i = 1; i < pages.length; i++) {
+      pages[i].remove();
+    }
+    pageCount = 1;
+
+    const p1 = document.getElementById('page-1');
+    p1.querySelectorAll('input').forEach(input => {
+      if (input.type !== 'file' && input.type !== 'checkbox') input.value = '';
+      if (input.type === 'checkbox') input.checked = false;
+    });
+
+    const userImgs = p1.querySelectorAll('.uploadedImage, .uploadedImageStu, .nid-user-img');
+    userImgs.forEach(img => {
+      img.src = '';
+      img.style.display = 'none';
+    });
+
+    p1.querySelectorAll('.nid-thumb-img').forEach(img => img.style.display = 'block');
+    p1.querySelectorAll('.photoPlaceholder, .photoPlaceholderStu').forEach(p => p.style.display = 'block');
+    p1.querySelector('.off-print-code').innerText = 'কোড নং: ';
+    p1.querySelector('.stu-print-code').innerText = 'কোড নং: ';
+    initDateTime();
+  }
+</script>
+
+</body>
+</html>
