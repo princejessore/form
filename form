@@ -6,7 +6,7 @@
   <!-- ক্রপ ও কম্পিউটার ভিশন লাইব্রেরি -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-  <!-- এআই/কম্পিউটার ভিশন অটো কার্ড বাউন্ডারি ডিটেক্টর -->
+  <!-- এআই কার্ড বাউন্ডারি ডিটেক্টর -->
   <script async src="https://docs.opencv.org/4.5.4/opencv.js" onload="onOpenCvReady()"></script>
 
   <style>
@@ -54,7 +54,6 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.15);
     }
 
-    /* হালকা ইসলামিক জ্যামিতিক ব্যাকগ্রাউন্ড প্যাটার্ন */
     .islamic-bg-pattern {
       background-color: #ffffff;
       background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 0l5 5h10v10l5 5-5 5v10H25l-5 5-5-5H5V25l-5-5 5-5V5h10l5-5zm0 6l-3.5 3.5H9v7.5L5.5 20 9 23.5v7.5h7.5l3.5 3.5 3.5-3.5h7.5v-7.5l3.5-3.5-3.5-3.5V9.5h-7.5L20 6z' fill='%23000000' fill-opacity='0.028' fill-rule='evenodd'/%3E%3C/svg%3E");
@@ -593,22 +592,21 @@
       font-size: 10.5px;
     }
 
-    /* ফ্লোটিং অ্যাকশন বার */
     .action-bar {
       position: fixed;
-      bottom: 70px;
-      right: 15px;
+      bottom: 25px;
+      right: 20px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
       z-index: 99999;
     }
 
     .action-btn {
-      padding: 8px 14px;
+      padding: 9px 16px;
       border-radius: 30px;
       border: 1.5px solid #000;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -648,7 +646,6 @@
       gap: 10px;
     }
 
-    /* ক্রপ মোডাল স্টাইল */
     .crop-modal-overlay {
       display: none;
       position: fixed;
@@ -723,7 +720,6 @@
       border: 1px dashed #333;
     }
 
-    /* প্রিন্ট স্টাইল */
     @media print {
       * {
         -webkit-print-color-adjust: exact !important;
@@ -775,14 +771,13 @@
 <body>
 
 <div id="loadingOverlay" class="loading-overlay">
-  <div id="loadingText">ডাটা লোড / সেভ হচ্ছে, অপেক্ষা করুন...</div>
+  <div id="loadingText">ডাটা সেভ হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</div>
 </div>
 
-<!-- ক্রপ মডাল পপ-আপ -->
 <div id="cropModalOverlay" class="crop-modal-overlay">
   <div class="crop-modal-content">
     <div style="font-size: 15px; font-weight: bold; margin-bottom: 10px; width:100%; text-align: left; display:flex; justify-content:space-between; align-items:center;">
-      <span>✂️ এআই দিয়ে কার্ড ডিটেক্ট করা হয়েছে (প্রয়োজনে টেনে ছোট-বড় করুন):</span>
+      <span>✂️ কার্ড ক্রপ প্রিভিউ (প্রয়োজনে টেনে ছোট-বড় করুন):</span>
     </div>
     <div class="crop-image-wrapper">
       <img id="imageToCrop" src="" alt="Crop Preview">
@@ -800,13 +795,11 @@
 <div id="pagesContainer">
   <div class="a4-page" id="page-1">
 
-    <!-- উপরের অংশ: ভর্তি ফরম -->
     <div class="admission-form-box islamic-bg-pattern">
       <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="watermark">
 
       <div class="form-content">
         <div>
-          <!-- হেডার -->
           <div class="header-area">
             <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="header-logo">
             <div class="header-center-info">
@@ -815,18 +808,17 @@
               <div class="line-contact">যোগাযোগ: ০১৮৮৫-০০৬৬৫৪, ০১৩১৭৮৩৮৯৯২</div>
             </div>
             
-            <!-- পাসপোর্ট ছবি ফ্রেম (ক্যামেরা সরাসরি ওপেন হবে) -->
+            <!-- ক্যামেরা ও মেমোরি উভয় অপশনের জন্য capture সরানো হয়েছে -->
             <div class="photo-box" onclick="triggerCropUpload(this, 'photo')">
-              <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'photo')">
+              <input type="file" accept="image/*" style="display:none" onchange="initCropProcess(event, this, 'photo')">
               <img class="uploadedImage" alt="">
               <div class="photoPlaceholder">
                 <div class="photo-icon">📷</div>
-                <div class="photo-text">ছবি তুলুন</div>
+                <div class="photo-text">ছবি আপলোড</div>
               </div>
             </div>
           </div>
 
-          <!-- এক লাইনে ব্যাচ ও কোড, তারিখ ও সময় -->
           <div class="meta-top-line">
             <div class="code-batch-wrapper">
               <input type="text" class="batch-field off-batch" placeholder="ব্যাচ নং" oninput="handleBanglaBatchCodeInput(this)" onblur="formatBanglaTwoDigits(this)">
@@ -842,12 +834,10 @@
             </div>
           </div>
 
-          <!-- ভর্তি ফরম ব্যানার -->
           <div class="form-title-wrapper">
             <div class="form-title-pill">ভর্তি ফরম</div>
           </div>
 
-          <!-- ফন্টের তথ্য ইনপুট ফিল্ড -->
           <div>
             <div class="field-grid">
               <div class="form-group">
@@ -895,14 +885,12 @@
               </div>
             </div>
 
-            <!-- বয়স -->
             <div class="form-group" style="margin-top: 5.5px;">
               <div class="label-title">বয়স</div>
               <div class="colon-mark">:</div>
               <input type="text" class="input-field off-age" placeholder="জন্ম তারিখ লিখলে স্বয়ংক্রিয় বছর আসবে" readonly>
             </div>
 
-            <!-- ১. বর্তমান ঠিকানা -->
             <div class="address-row">
               <div class="label-title">বর্তমান ঠিকানা</div>
               <div class="colon-mark">:</div>
@@ -914,7 +902,6 @@
               <input type="text" class="address-field off-pres-dist" placeholder="বাংলায় লিখুন" oninput="handleAddressInput(this, 'stu-pres-dist')">
             </div>
 
-            <!-- ২. স্থায়ী ঠিকানা (টিকবক্সসহ) -->
             <div class="address-row">
               <div class="label-title" style="display: flex; align-items: center;">
                 স্থায়ী ঠিকানা
@@ -934,22 +921,21 @@
           </div>
         </div>
 
-        <!-- এনআইডি ফ্রন্ট ও ব্যাক সাইড (ক্যামেরা সরাসরি ওপেন হবে) -->
+        <!-- এনআইডি ফ্রন্ট ও ব্যাক সাইড (ক্যামেরা ও গ্যালারি উভয় অপশন) -->
         <div class="nid-section-wrapper">
-          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-front')" title="ক্লিক করে সরাসরি ক্যামেরা দিয়ে ফ্রন্ট সাইড ছবি তুলুন ও ক্রপ করুন">
-            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'nid-front')">
+          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-front')" title="ক্লিক করে ছবি তুলুন বা গ্যালারি থেকে বেছে নিন">
+            <input type="file" accept="image/*" style="display:none" onchange="initCropProcess(event, this, 'nid-front')">
             <img src="https://lh3.googleusercontent.com/d/1YdVIpD3le7XCMyKHlU9OMPc60-u0nifz" class="nid-thumb-img" alt="NID Front">
             <img class="nid-user-img" alt="Uploaded NID Front">
           </div>
 
-          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-back')" title="ক্লিক করে সরাসরি ক্যামেরা দিয়ে ব্যাক সাইড ছবি তুলুন">
-            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="initCropProcess(event, this, 'nid-back')">
+          <div class="nid-card-shape" onclick="triggerCropUpload(this, 'nid-back')" title="ক্লিক করে ছবি তুলুন বা গ্যালারি থেকে বেছে নিন">
+            <input type="file" accept="image/*" style="display:none" onchange="initCropProcess(event, this, 'nid-back')">
             <img src="https://lh3.googleusercontent.com/d/1HvvACQXBkD9PXErtGMP7hTop92DDai2j" class="nid-thumb-img" alt="NID Back">
             <img class="nid-user-img" alt="Uploaded NID Back">
           </div>
         </div>
 
-        <!-- মোট ফি ➔ জমা ➔ বাকি সেকশন -->
         <div>
           <div class="fee-calc-section">
             <div class="fee-box">
@@ -984,13 +970,11 @@
       </div>
     </div>
 
-    <!-- কাটার অংশ -->
     <div class="cut-line-area">
       <div class="cut-line-dash"></div>
       <div class="cut-text">✂ এখান থেকে কেটে আলাদা করুন</div>
     </div>
 
-    <!-- নিচের অংশ: ভর্তি রশিদ -->
     <div class="admission-receipt-box islamic-bg-pattern">
       <img src="https://lh3.googleusercontent.com/d/1lYls76c06bobl6YMR_96JXykgynKhK2X" class="watermark">
 
@@ -1106,7 +1090,6 @@
   </div>
 </div>
 
-<!-- অ্যাকশন বার বাটনসমূহ -->
 <div class="action-bar">
   <button type="button" class="action-btn" onclick="addNewPage()" title="নতুন পেজ যুক্ত করুন">➕ নতুন পাতা</button>
   <button type="button" class="action-btn" onclick="saveToSheetAndPrint()" title="প্রিন্ট ও সেভ">🖨️ প্রিন্ট / সেভ</button>
@@ -1114,7 +1097,6 @@
 </div>
 
 <script>
-  // আপনার অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ URL
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHMQdj2iymTRrjzXZiX1oCWuYOA-G8JvnAwmB3hXMBxww1WvaSJ40CSpda6hpmG28M/exec";
 
   let isCvReady = false;
@@ -1240,11 +1222,12 @@
   function saveCroppedImage() {
     if (!currentCropper) return;
 
+    // ফাইল সাইজ দ্রুত আপলোড নিশ্চিত করতে সর্বোচ্চ ৮০০ পিক্সেল ও অপটিমাইজড কোয়ালিটি
     const canvas = currentCropper.getCroppedCanvas({
-      maxWidth: 1200,
-      maxHeight: 1200
+      maxWidth: 800,
+      maxHeight: 800
     });
-    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.80);
     const { type, container } = activeCropContext;
     const page = container.closest('.a4-page');
 
@@ -1439,7 +1422,6 @@
     }
   }
 
-  // ফোন লুকআপ: নাম লেখা থাকলে ডাটা মোছার সার্চ চালাবে না
   let searchTimeout = null;
   function handleBanglaPhoneLookup(element) {
     handleBanglaNumbersOnly(element, 'stu-phone');
@@ -1563,8 +1545,8 @@
     newPage.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // সব পেজের ডাটা ও ছবি লুপ করে শিটে সেভ করার ফাংশন
-  async function saveToSheetAndPrint() {
+  // দ্রুততম সময়ে সেভ ও প্রিন্ট ফাংশন
+  function saveToSheetAndPrint() {
     document.querySelectorAll('.a4-page').forEach(page => {
       const bField = page.querySelector('.off-batch');
       const cField = page.querySelector('.off-code');
@@ -1591,19 +1573,12 @@
       return;
     }
 
-    const overlay = document.getElementById('loadingOverlay');
-    const loadText = document.getElementById('loadingText');
-    overlay.style.display = 'flex';
-
-    // প্রতিটি পেজের ডাটা ক্রমানুসারে শিটে পাঠানো
-    for (let i = 0; i < validPages.length; i++) {
-      const page = validPages[i];
+    // ব্যাকগ্রাউন্ডে গুগল শিটে ডাটা পাঠানো (কোনো ল্যাগ ছাড়াই ব্যাকগ্রাউন্ডে সেভ হবে)
+    validPages.forEach((page, index) => {
       const studentName = page.querySelector('.off-name').value.trim();
       const batch = padBanglaTwoDigits(page.querySelector('.off-batch').value.trim());
       const code = padBanglaTwoDigits(page.querySelector('.off-code').value.trim());
       const fullCode = (batch + code).trim();
-
-      loadText.innerText = `পাতা (${i + 1}/${validPages.length}) ডাটা ও ছবি সেভ হচ্ছে...`;
 
       const params = new URLSearchParams();
       params.append("code", fullCode);
@@ -1617,7 +1592,6 @@
       params.append("guardian", page.querySelector('.off-guardian').value);
       params.append("edu", page.querySelector('.off-edu').value);
 
-      // ঠিকানা ফিল্ডগুলো
       params.append("village", page.querySelector('.off-pres-vil').value);
       params.append("thana", page.querySelector('.off-pres-thana').value);
       params.append("district", page.querySelector('.off-pres-dist').value);
@@ -1628,7 +1602,6 @@
       params.append("date", page.querySelector('.currentDate').innerText);
       params.append("time", page.querySelector('.currentTime').innerText);
 
-      // ছবি ডাটা
       const photoImg = page.querySelector('.uploadedImage');
       const nidImgs = page.querySelectorAll('.nid-user-img');
 
@@ -1636,26 +1609,23 @@
       params.append("nidFrontData", (nidImgs[0] && nidImgs[0].src && nidImgs[0].src.startsWith('data:image')) ? nidImgs[0].src : '');
       params.append("nidBackData", (nidImgs[1] && nidImgs[1].src && nidImgs[1].src.startsWith('data:image')) ? nidImgs[1].src : '');
 
-      try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: params.toString()
-        });
-      } catch (err) {
-        console.error("Save error for page:", i + 1, err);
-      }
-    }
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: params.toString()
+      }).catch(err => console.error("Auto-sync error:", err));
+    });
 
-    overlay.style.display = 'none';
-
-    // সব পেজ একসাথে প্রিন্ট করা
+    // দেরি না করে অবিলম্বে প্রিন্ট ডায়ালগ ওপেন
     const firstPageName = validPages[0].querySelector('.off-name').value.trim();
     const originalTitle = document.title;
     document.title = validPages.length > 1 ? `${firstPageName} সহ ${validPages.length} জন` : firstPageName;
-    window.print();
-    setTimeout(() => { document.title = originalTitle; }, 1000);
+    
+    setTimeout(() => {
+      window.print();
+      document.title = originalTitle;
+    }, 150);
   }
 
   function resetAllForms() {
